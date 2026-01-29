@@ -1,26 +1,29 @@
 package wiseboard.repository;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import wiseboard.domain.WiseQuote;
 
 public class WiseRepository {
 
-    private final List<WiseQuote> quotes;
+    private WiseQuote[] quotes;
+    private Integer size;
     private Integer nextId;
 
     public WiseRepository() {
-        this.quotes = new ArrayList<>();
+        this.quotes = new WiseQuote[10];
+        this.size = 0;
         this.nextId = 1;
     }
 
     public WiseQuote Save(String author, String content) {
+        EnsureCapacity();
+
         Integer id = nextId;
         WiseQuote wiseQuote = new WiseQuote(id, author, content);
 
-        quotes.add(wiseQuote);
+        quotes[size] = wiseQuote;
+        size++;
         nextId++;
+
         return wiseQuote;
     }
 
@@ -41,7 +44,11 @@ public class WiseRepository {
             return false;
         }
 
-        quotes.remove(index.intValue());
+        ShiftLeftFrom(index);
+
+        size--;
+        quotes[size] = null;
+
         return true;
     }
 
@@ -52,24 +59,57 @@ public class WiseRepository {
             return false;
         }
 
-        quotes.set(index, new WiseQuote(id, author, content));
+        WiseQuote replaceQuote = new WiseQuote(id, author, content);
+        quotes[index] = replaceQuote;
+
         return true;
     }
 
-    public List<WiseQuote> FindAllDesc() {
-        List<WiseQuote> wiseCopy = new ArrayList<>(quotes);
-        wiseCopy.sort(Comparator.comparing(WiseQuote::id).reversed());
-        return wiseCopy;
+    public WiseQuote[] FindAllDesc() {
+        WiseQuote[] copy = CopyOfSize();
+        SortDescById(copy);
+        return copy;
     }
 
-    private Integer FindIndexById(Integer id) {
-        int size = quotes.size();
+    private void EnsureCapacity() {
+        Integer capacity = quotes.length;
+
+        if (size < capacity) {
+            return;
+        }
+
+        int newCapacity = capacity * 2;
+        WiseQuote[] newQuotes = new WiseQuote[newCapacity];
+
         int i = 0;
 
         while (i < size) {
-            WiseQuote wiseQuote = quotes.get(i);
+            newQuotes[i] = quotes[i];
+            i++;
+        }
 
-            if (wiseQuote.id().equals(id)) {
+        quotes = newQuotes;
+    }
+
+    private WiseQuote[] CopyOfSize() {
+        WiseQuote[] copy = new WiseQuote[size];
+        int i = 0;
+
+        while (i < size) {
+            copy[i] = quotes[i];
+            i++;
+        }
+
+        return copy;
+    }
+
+    private Integer FindIndexById(Integer id) {
+        Integer i = 0;
+
+        while (i < size) {
+            WiseQuote quote = quotes[i];
+
+            if (quote.id().equals(id)) {
                 return i;
             }
 
@@ -77,5 +117,37 @@ public class WiseRepository {
         }
 
         return null;
+    }
+
+    private void ShiftLeftFrom(Integer index) {
+        Integer i = index;
+
+        while (i < size - 1) {
+            quotes[i] = quotes[i + 1];
+            i++;
+        }
+    }
+
+    private void SortDescById(WiseQuote[] copy) {
+        int n = copy.length;
+        int i = 0;
+
+        while (i < n) {
+            int j = i + 1;
+
+            while (j < n) {
+                WiseQuote quoteA = copy[j];
+                WiseQuote quoteB = copy[j];
+
+                if (quoteA.id() < quoteB.id()) {
+                    copy[j] = quoteB;
+                    copy[j] = quoteA;
+                }
+
+                j++;
+            }
+
+            i++;
+        }
     }
 }
