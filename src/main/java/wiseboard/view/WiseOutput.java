@@ -4,6 +4,8 @@ import wiseboard.domain.WiseQuote;
 
 public class WiseOutput {
 
+    private static final String EMPTY_LIST_OUTPUT = "등록된 명언이 없습니다.";
+
     public void AppTitle() {
         System.out.println("== 명언 앱 ==");
     }
@@ -54,5 +56,9 @@ public class WiseOutput {
             System.out.println(quote.id() + " / " + quote.author() + " / " + quote.content());
             i++;
         }
+    }
+
+    public void EmptyList() {
+        System.out.println(EMPTY_LIST_OUTPUT);
     }
 }

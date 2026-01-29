@@ -14,6 +14,20 @@ public class WiseInput {
     private static final String DELETE_PREFIX = "삭제?id=";
     private static final String MODIFY_PREFIX = "수정?id=";
 
+    private static final String ERROR_PREFIX = "[ERROR] ";
+
+    private static final String INVALID_COMMAND_ERROR = "알 수 없는 명령어입니다. 사용 가능한 명령: 등록, 목록, 삭제?id={번호}, 수정?id={번호}, 종료";
+
+    private static final String INVALID_ID_ERROR = "id는 1 이상의 정수여야 합니다. 예) 삭제?id=1, 수정?id=2";
+
+    private static final String BLANK_CONTENT_ERROR = "명언 내용은 공백일 수 없습니다. 한글/영문/숫자/공백만 입력 가능합니다.";
+
+    private static final String BLANK_AUTHOR_ERROR = "작가명은 공백일 수 없습니다. 한글/영문/숫자/공백만 입력 가능합니다.";
+
+    private static final String INVALID_CONTENT_CHAR_ERROR = "명언 내용에 허용되지 않는 문자가 포함되어 있습니다. 허용: 한글/영문/숫자/공백";
+
+    private static final String INVALID_AUTHOR_CHAR_ERROR = "작가명에 허용되지 않는 문자가 포함되어 있습니다. 허용: 한글/영문/숫자/공백";
+
     private final Scanner scanner;
     private final WiseOutput wiseOutput;
     private final WiseService wiseService;
@@ -53,7 +67,7 @@ public class WiseInput {
                 continue;
             }
 
-            throw new IllegalArgumentException("[ERROR] 올바른 명령어를 입력해주세요.");
+            throw new IllegalArgumentException(ERROR_PREFIX + INVALID_COMMAND_ERROR);
         }
     }
 
@@ -69,6 +83,9 @@ public class WiseInput {
         wiseOutput.AuthorPrompt();
         String author = scanner.nextLine();
 
+        ValidateContent(content);
+        ValidateAuthor(author);
+
         Integer id = wiseService.Register(author, content);
         wiseOutput.Registered(id);
     }
@@ -77,6 +94,12 @@ public class WiseInput {
         wiseOutput.ListHeader();
 
         WiseQuote[] quotes = wiseService.FindAllDesc();
+
+        if (quotes.length == 0) {
+            wiseOutput.EmptyList();
+            return;
+        }
+
         wiseOutput.ListRows(quotes);
     }
 
@@ -111,11 +134,82 @@ public class WiseInput {
         wiseOutput.AuthorPrompt();
         String newAuthor = scanner.nextLine();
 
+        ValidateContent(newContent);
+        ValidateAuthor(newAuthor);
+
         wiseService.Modify(id, newAuthor, newContent);
     }
 
     private Integer ExtractId(String command, String prefix) {
         String value = command.substring(prefix.length()).trim();
-        return Integer.valueOf(value);
+
+        try {
+            int id = Integer.parseInt(value);
+
+            if (id < 1) {
+                throw new IllegalArgumentException(ERROR_PREFIX + INVALID_ID_ERROR);
+            }
+
+            return id;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(ERROR_PREFIX + INVALID_ID_ERROR);
+        }
+    }
+
+    private void ValidateAuthor(String author) {
+        if (IsBlank(author)) {
+            throw new IllegalArgumentException(ERROR_PREFIX + BLANK_AUTHOR_ERROR);
+        }
+
+        if (!IsAllowedText(author)) {
+            throw new IllegalArgumentException(ERROR_PREFIX + INVALID_AUTHOR_CHAR_ERROR);
+        }
+    }
+
+    private void ValidateContent(String content) {
+        if (IsBlank(content)) {
+            throw new IllegalArgumentException(ERROR_PREFIX + BLANK_CONTENT_ERROR);
+        }
+
+        if (!IsAllowedText(content)) {
+            throw new IllegalArgumentException(ERROR_PREFIX + INVALID_CONTENT_CHAR_ERROR);
+        }
+    }
+
+    private boolean IsBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private boolean IsAllowedText(String value) {
+        int i = 0;
+
+        while (i < value.length()) {
+            char c = value.charAt(i);
+
+            if (IsKorean(c) || IsEnglish(c) || IsDigit(c) || IsSpace(c)) {
+                i++;
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean IsKorean(char c) {
+        return c >= '가' && c <= '힣';
+    }
+
+    private boolean IsEnglish(char c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+    }
+
+    private boolean IsDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private boolean IsSpace(char c) {
+        return c == ' ';
     }
 }
