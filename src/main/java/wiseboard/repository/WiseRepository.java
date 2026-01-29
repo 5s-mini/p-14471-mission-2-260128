@@ -142,7 +142,7 @@ public class WiseRepository {
             int j = i + 1;
 
             while (j < n) {
-                WiseQuote quoteA = copy[j];
+                WiseQuote quoteA = copy[i];
                 WiseQuote quoteB = copy[j];
 
                 if (quoteA.id() < quoteB.id()) {

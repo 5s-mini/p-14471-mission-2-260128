@@ -101,7 +101,7 @@
 ## <span style="color:#d876e3">3. 기타 구현 조건</span>
 
 - [x] 최대한 라이브러리를 사용하지 않고 구현한다. 단, 자바 표준 라이브러리는 적극적으로 활용해도 된다.
-- [ ] 테스트 시 'assertThat' 사용을 위해 다음 의존성을 사용한다.
-    - [ ] 'testImplementation("org.assertj:assertj-core:3.26.3")'
+- [x] 테스트 시 'assertThat' 사용을 위해 다음 의존성을 사용한다.
+    - [x] 'testImplementation("org.assertj:assertj-core:3.26.3")'
 - [x] 명령어 파싱, id 추출, 검증 등의 로직은 별도 메서드로 분리하여 가독성과 재사용성을 높인다.
 - [x] 도메인 로직(명언 저장, 조회, 삭제, 수정)과 입출력(Console)을 적절히 분리하여 설계한다.
