@@ -1,5 +1,7 @@
 package wiseboard.view;
 
+import wiseboard.domain.WiseQuote;
+
 public class WiseOutput {
 
     public void AppTitle() {
@@ -41,5 +43,16 @@ public class WiseOutput {
 
     public void ModifyExistingAuthor(String author) {
         System.out.println("작가(기존) : " + author);
+    }
+
+    public void ListRows(WiseQuote[] quotes) {
+        int i = 0;
+        int n = quotes.length;
+
+        while (i < n) {
+            WiseQuote quote = quotes[i];
+            System.out.println(quote.id() + " / " + quote.author() + " / " + quote.content());
+            i++;
+        }
     }
 }

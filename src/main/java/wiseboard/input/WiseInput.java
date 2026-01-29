@@ -1,6 +1,9 @@
 package wiseboard.input;
 
 import java.util.Scanner;
+import wiseboard.domain.WiseQuote;
+import wiseboard.repository.WiseRepository;
+import wiseboard.service.WiseService;
 import wiseboard.view.WiseOutput;
 
 public class WiseInput {
@@ -13,10 +16,14 @@ public class WiseInput {
 
     private final Scanner scanner;
     private final WiseOutput wiseOutput;
+    private final WiseService wiseService;
 
     public WiseInput(WiseOutput wiseOutput) {
         this.wiseOutput = wiseOutput;
         this.scanner = new Scanner(System.in);
+
+        WiseRepository wiseRepository = new WiseRepository();
+        this.wiseService = new WiseService(wiseRepository);
     }
 
     public void Start() {
@@ -61,18 +68,50 @@ public class WiseInput {
 
         wiseOutput.AuthorPrompt();
         String author = scanner.nextLine();
+
+        Integer id = wiseService.Register(author, content);
+        wiseOutput.Registered(id);
     }
 
     private void List() {
         wiseOutput.ListHeader();
+
+        WiseQuote[] quotes = wiseService.FindAllDesc();
+        wiseOutput.ListRows(quotes);
     }
 
     private void Delete(String command) {
         Integer id = ExtractId(command, DELETE_PREFIX);
+
+        boolean deleted = wiseService.Delete(id);
+
+        if (deleted) {
+            wiseOutput.Deleted(id);
+            return;
+        }
+
+        wiseOutput.NotFound(id);
     }
 
     private void Modify(String command) {
         Integer id = ExtractId(command, MODIFY_PREFIX);
+
+        WiseQuote quote = wiseService.FindById(id);
+
+        if  (quote == null) {
+            wiseOutput.NotFound(id);
+            return;
+        }
+
+        wiseOutput.ModifyExistingContent(quote.content());
+        wiseOutput.QuotePrompt();
+        String newContent = scanner.nextLine();
+
+        wiseOutput.ModifyExistingAuthor(quote.author());
+        wiseOutput.AuthorPrompt();
+        String newAuthor = scanner.nextLine();
+
+        wiseService.Modify(id, newAuthor, newContent);
     }
 
     private Integer ExtractId(String command, String prefix) {

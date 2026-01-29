@@ -28,10 +28,16 @@ public class WiseRepository {
     }
 
     public WiseQuote FindById(Integer id) {
-        for (WiseQuote quote : quotes) {
+        int i = 0;
+
+        while (i < size) {
+            WiseQuote quote = quotes[i];
+
             if (quote.id().equals(id)) {
                 return quote;
             }
+
+            i++;
         }
 
         return null;
@@ -140,8 +146,9 @@ public class WiseRepository {
                 WiseQuote quoteB = copy[j];
 
                 if (quoteA.id() < quoteB.id()) {
-                    copy[j] = quoteB;
-                    copy[j] = quoteA;
+                    WiseQuote temp = copy[i];
+                    copy[i] = copy[j];
+                    copy[j] = temp;
                 }
 
                 j++;
