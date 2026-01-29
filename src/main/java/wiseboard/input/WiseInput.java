@@ -5,6 +5,12 @@ import wiseboard.view.WiseOutput;
 
 public class WiseInput {
 
+    private static final String Finish_Command = "종료";
+    private static final String Register_Command = "등록";
+    private static final String List_Command = "목록";
+    private static final String DELETE_PREFIX = "삭제?id=";
+    private static final String MODIFY_PREFIX = "수정?id=";
+
     private final Scanner scanner;
     private final WiseOutput wiseOutput;
 
@@ -20,22 +26,22 @@ public class WiseInput {
             String command = Input();
 
             switch (command) {
-                case "종료":
+                case Finish_Command:
                     return;
-                case "등록":
+                case Register_Command:
                     Register();
                     continue;
-                case "목록":
+                case List_Command:
                     List();
                     continue;
             }
 
-            if (command.startsWith("삭제?id=")) {
+            if (command.startsWith(DELETE_PREFIX)) {
                 Delete(command);
                 continue;
             }
 
-            if (command.startsWith("수정?id=")) {
+            if (command.startsWith(MODIFY_PREFIX)) {
                 Modify(command);
                 continue;
             }
@@ -58,7 +64,7 @@ public class WiseInput {
     }
 
     private void List() {
-
+        wiseOutput.ListHeader();
     }
 
     private void Delete(String command) {
