@@ -68,10 +68,15 @@ public class WiseInput {
     }
 
     private void Delete(String command) {
-
+        Integer id = ExtractId(command, DELETE_PREFIX);
     }
 
     private void Modify(String command) {
+        Integer id = ExtractId(command, MODIFY_PREFIX);
+    }
 
+    private Integer ExtractId(String command, String prefix) {
+        String value = command.substring(prefix.length()).trim();
+        return Integer.valueOf(value);
     }
 }
